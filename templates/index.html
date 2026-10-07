@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HydroPulse AI - Kolkata Drainage Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- HEADER BAR -->
+    <header class="main-header">
+        <h1>🌊 HydroPulse AI</h1>
+        <p>Kolkata Smart Drainage Grid & Flood Predictive Logistics Management System</p>
+    </header>
+
+    <main class="dashboard-container">
+        
+        <!-- MODULE 1: PRE-RAIN INTEL (FETCHED FROM SQL WITH SLA TIMERS) -->
+        <section class="live-grid-section">
+            <h2>📊 Predictive Silt & Sewer Analytics</h2>
+            <p style="margin-bottom: 20px; color: #4a5568;">Ultrasonic sensors tracking sediment levels inside urban channels to trigger preemptive cleanup.</p>
+            <div class="grid-layout">
+                {% for zone in zones %}
+                <div class="zone-card">
+                    <h3>{{ zone.zone_name.replace('_', ' ') }}</h3>
+                    <p class="status-badge {% if zone.silt_blockage_pct >= 75 %}red{% else %}green{% endif %}">
+                        Silt Blockage: {{ zone.silt_blockage_pct }}%
+                    </p>
+                    <p>Water Level Status: {{ zone.water_level_cm }} cm</p>
+                    
+                    {% if zone.silt_blockage_pct >= 75 %}
+                    <div class="sla-container">
+                        <span class="action-tag" style="color: #e53e3e; font-weight: bold; display: block; margin-top: 10px;">⚠️ ALERT: Pre-Rain Dispatch Active</span>
+                        <div class="timer-badge">⏳ AI SLA Target: <span style="color: #e53e3e; font-weight: bold;">01:42:15 Left</span></div>
+                        <div class="escalation-tag">Escalation Rank: High Priority</div>
+                    </div>
+                    {% else %}
+                    <div class="sla-container">
+                        <span class="action-tag" style="color: #38a169; font-weight: bold; display: block; margin-top: 10px;">✅ Status: Stable</span>
+                        <div class="timer-badge" style="color: #718096;">SLA Target: Safe Zone</div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- MODULE 2: DYNAMIC ROUTE DISPATCH MAP & QUEUE -->
+        <section class="live-grid-section" style="margin-top: 40px;">
+            <h2>🚚 Automated Fleet Logistics & Deployment Sheet</h2>
+            
+            <!-- Map Simulation Box -->
+            <div class="zone-card" style="background-color: #e2e8f0; min-height: 150px; display: flex; align-items: center; justify-content: center; border: 2px dashed #4a5568; margin-bottom: 20px; border-radius: 8px; max-width: 100%;">
+                <div style="text-align: center; color: #2d3748; padding: 15px;">
+                    <p style="font-size: 24px; margin: 0;">🗺️</p>
+                    <p style="font-weight: bold; margin: 5px 0;">Kolkata Geo-Spatial Drainage Route Map</p>
+                    <p style="font-size: 13px; color: #718096;">
+                        Active Path Log: 
+                        {% for r_zone in route %}
+                            {{ r_zone.zone_name.replace('_', ' ') }} ({{ r_zone.distance_km }}km) {% if not loop.last %}➔{% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+            </div>
+
+            <div class="zone-card" style="border-left: 5px solid #3182ce; background-color: #ffffff; max-width: 100%;">
+                <h3>🔴 Emergency Dispatch Queue (Calculated by Shortest Distance Algorithm):</h3>
+                <p style="color: #4a5568; margin-bottom: 15px;">Real-time execution optimization based on dynamic database records.</p>
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 15px 0;">
+                
+                {% for r_zone in route %}
+                <p style="font-size: 16px; margin: 10px 0; line-height: 1.5;">
+                    <strong>Priority {{ loop.index }}:</strong> {{ r_zone.zone_name.replace('_', ' ') }} ({{ r_zone.distance_km }} km) 
+                    <span class="status-badge red" style="font-size: 11px; padding: 2px 8px; margin-left: 10px;">
+                        {% if loop.first %}🚚 Truck Cleaning Active{% else %}⏳ Next Target Vector{% endif %}
+                    </span>
+                </p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- MODULE 3: CITIZEN INTAKE -->
+        <section class="complaint-section" style="margin-top: 40px;">
+            <h2>📩 Citizen Incident Response Portal</h2>
+            <p style="color: #4a5568; margin-bottom: 15px;">Crowdsourced public reports fed straight into the municipal operational center database.</p>
+            <form class="clean-form" action="/report" method="POST">
+                <label for="username">Citizen Name:</label>
+                <input type="text" name="username" id="username" placeholder="Enter full name" required>
+
+                <label for="zone">Select Affected Kolkata Area:</label>
+                <select name="zone" id="zone">
+                    {% for zone in zones %}
+                    <option value="{{ zone.zone_name }}">{{ zone.zone_name.replace('_', ' ') }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="severity">Water Severity Level:</label>
+                <select name="severity" id="severity">
+                    <option value="low">Low (Slow Drainage)</option>
+                    <option value="medium">Medium (Waterlogged Streets)</option>
+                    <option value="high">High (Severe Flooding / Flash Flood)</option>
+                </select>
+
+                <button type="submit" class="submit-btn">Transmit Emergency Alert Data</button>
+            </form>
+        </section>
+
+    </main>
+</body>
+</html>
